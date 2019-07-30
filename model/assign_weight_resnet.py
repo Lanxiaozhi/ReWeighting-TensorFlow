@@ -9,9 +9,9 @@ class AssignWeightResNet(object):
         self._data_format = config['data_format']
         self._is_training = is_training
         self._bn_update_ops = None
+        self._wts_dict = wts_dict
         if wts_dict is not None:
             self._create_new_var = False
-            self._wts_dict = wts_dict
         else:
             self._create_new_var = True
 
@@ -22,7 +22,7 @@ class AssignWeightResNet(object):
                 tf.compat.v1.ones([batch_size], dtype=tf.float32) / float(batch_size), [batch_size], name='ex_wts')
 
         data = tf.compat.v1.placeholder(dtype=tf.float32,
-                                        shape=[batch_size, config['input_channel'], config['input_height'],
+                                        shape=[batch_size, config['num_channels'], config['input_height'],
                                                config['input_width']], name='data')
         label = tf.compat.v1.placeholder(dtype=tf.int32, shape=[batch_size], name='label')
         self._data = data
@@ -51,6 +51,9 @@ class AssignWeightResNet(object):
             )
 
             self._grads_and_vars = self._backward(loss)
+            # print('BN update ops:')
+            # [print(op) for op in self.bn_update_ops]
+            print('Total number of BN updates: {}'.format(len(self.bn_update_ops)))
             self._train_opt = self._step(global_step=global_step)
             self._global_step = global_step
             self._new_learning_rate = tf.compat.v1.placeholder(dtype=tf.float32, shape=[], name='learning_rate')
@@ -214,7 +217,7 @@ class AssignWeightResNet(object):
                     stddev = 0.1
                 else:
                     stddev = init_param['stddev']
-                # log.info('Normal initialization std {:.3e}'.format(stddev))
+                # print('Normal initialization std {:.3e}'.format(stddev))
                 initializer = tf.truncated_normal_initializer(
                     mean=mean, stddev=stddev, seed=seed, dtype=dtype)
             elif init_method == 'uniform_scaling':
@@ -222,7 +225,7 @@ class AssignWeightResNet(object):
                     factor = 1.0
                 else:
                     factor = init_param['factor']
-                # log.info('Uniform initialization scale {:.3e}'.format(factor))
+                # print('Uniform initialization scale {:.3e}'.format(factor))
                 initializer = tf.uniform_unit_scaling_initializer(factor=factor, seed=seed, dtype=dtype)
             elif init_method == 'constant':
                 if 'val' not in init_param:
@@ -588,7 +591,7 @@ class AssignWeightResNet(object):
 
     @property
     def output(self):
-        return self.output
+        return self._output
 
     @property
     def loss(self):
@@ -616,6 +619,8 @@ class AssignWeightResNet(object):
 
     @property
     def bn_update_ops(self):
+        if self._bn_update_ops is None:
+            self._bn_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
         return self._bn_update_ops
 
     @property

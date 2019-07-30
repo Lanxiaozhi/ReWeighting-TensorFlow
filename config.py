@@ -3,6 +3,8 @@ train_config = {
     'input_width': 32,
     'num_channels': 3,
     'resnet_model_config': {
+        'input_height': 32,
+        'input_width': 32,
         'num_channels': 3,
         'num_classes': 10,
         'num_residual_units': [5, 5, 5],
