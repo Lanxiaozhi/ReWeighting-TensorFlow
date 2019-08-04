@@ -22,8 +22,8 @@ class AssignWeightResNet(object):
                 tf.compat.v1.ones([batch_size], dtype=tf.float32) / float(batch_size), [batch_size], name='ex_wts')
 
         data = tf.compat.v1.placeholder(dtype=tf.float32,
-                                        shape=[batch_size, config['num_channels'], config['input_height'],
-                                               config['input_width']], name='data')
+                                        shape=[batch_size, config['input_height'],
+                                               config['input_width'], config['num_channels']], name='data')
         label = tf.compat.v1.placeholder(dtype=tf.int32, shape=[batch_size], name='label')
         self._data = data
         self._label = label

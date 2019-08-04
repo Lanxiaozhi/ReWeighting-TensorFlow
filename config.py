@@ -16,7 +16,7 @@ train_config = {
         'use_bottleneck': False,
         'build_classifier': True,
         'weight_decay': 2e-4,
-        'data_format': "NCHW",
+        'data_format': "NHWC",
         'dropout': 0.0,
     },
     'optimizer_config': {
